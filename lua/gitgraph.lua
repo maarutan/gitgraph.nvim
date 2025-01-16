@@ -1,6 +1,7 @@
 local log = require('gitgraph.log')
 local config = require('gitgraph.config')
 local highlights = require('gitgraph.highlights')
+local core = require('gitgraph.core')
 
 local M = {
   config = config.defaults,
@@ -19,6 +20,24 @@ function M.setup(user_config)
   math.randomseed(os.time())
 
   log.set_level(M.config.log_level)
+
+  -- Set the keymap for toggling GitGraph
+  vim.keymap.set('n', M.config.toggle_keymap, function()
+    core.toggleGitGraph(M.config)
+  end, { desc = 'Toggle GitGraph window' })
+
+  vim.keymap.set('n', M.config.close_key, function()
+    core.closeGitGraph(M.config)
+  end, { desc = 'quit gitgraph' })
+
+  vim.api.nvim_create_user_command('GitGraph', function()
+    core.toggleGitGraph(M.config)
+  end, { desc = 'Toggle GitGraph window' })
+
+  -- Register the CloseGitGraph command
+  vim.api.nvim_create_user_command('GitGraphClose', function()
+    core.closeGitGraph()
+  end, { desc = 'Close GitGraph window or buffer' })
 end
 
 --- Draws the gitgraph in buffer

@@ -46,7 +46,15 @@ local M = {}
 
 ---@type I.GGConfig
 M.defaults = {
+  layout = 'floating', -- Options: "floating", "vertical", "horizontal"
+  floating_width = 80, -- Width for floating window (percentage of the screen)
+  floating_height = 80, -- Height for floating window (percentage of the screen)
+  border = 'single', -- Options: "single", "double", "rounded", "solid", "shadow"
+  toggle_keymap = '<leader>gi', -- Default keymap for toggling GitGraph
+  key_close = 'q', -- Keymap to close GitGraph buffer
+
   symbols = {
+
     merge_commit = 'M',
     commit = '*',
     merge_commit_end = 'M',
@@ -88,5 +96,7 @@ M.defaults = {
   },
   log_level = vim.log.levels.ERROR,
 }
-
+function M.setup(user_config)
+  M.defaults = vim.tbl_deep_extend('force', M.defaults, user_config or {})
+end
 return M

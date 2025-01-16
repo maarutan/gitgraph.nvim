@@ -1002,4 +1002,79 @@ function M._gitgraph(raw_commits, opt, sym, fields)
   return graph, lines, highlights, head_loc, found_bi_crossing
 end
 
+local gitgraph_window_id = nil
+
+--- Toggles the GitGraph window
+---@param config table
+function M.toggleGitGraph(config)
+  if gitgraph_window_id and vim.api.nvim_win_is_valid(gitgraph_window_id) then
+    vim.api.nvim_win_close(gitgraph_window_id, true)
+    gitgraph_window_id = nil
+    return
+  end
+
+  -- Create a new buffer
+  local buf = vim.api.nvim_create_buf(false, true)
+  if not buf then
+    print('Failed to create buffer for GitGraph')
+    return
+  end
+
+  -- Open the window based on layout
+  if config.layout == 'floating' then
+    local width = math.floor(vim.o.columns * (config.floating_width / 100))
+    local height = math.floor(vim.o.lines * (config.floating_height / 100))
+    local row = math.floor((vim.o.lines - height) / 2)
+    local col = math.floor((vim.o.columns - width) / 2)
+
+    gitgraph_window_id = vim.api.nvim_open_win(buf, true, {
+      relative = 'editor',
+      width = width,
+      height = height,
+      row = row,
+      col = col,
+      style = 'minimal',
+      border = config.border,
+    })
+  elseif config.layout == 'vertical' then
+    vim.cmd('vsplit')
+    vim.api.nvim_win_set_buf(0, buf)
+    gitgraph_window_id = vim.api.nvim_get_current_win()
+  elseif config.layout == 'horizontal' then
+    vim.cmd('split')
+    vim.api.nvim_win_set_buf(0, buf)
+    gitgraph_window_id = vim.api.nvim_get_current_win()
+  else
+    error('Invalid layout option')
+  end
+
+  -- Set a unique buffer name
+  vim.api.nvim_buf_set_name(buf, 'GitGraph_' .. tostring(buf))
+
+  -- Set buffer options
+  vim.api.nvim_buf_set_option(buf, 'buftype', 'nofile')
+  vim.api.nvim_buf_set_option(buf, 'swapfile', false)
+  vim.api.nvim_buf_set_option(buf, 'bufhidden', 'wipe')
+
+  -- Validate and bind the close key
+  if type(config.key_close) == 'string' and #config.key_close > 0 then
+    vim.api.nvim_buf_set_keymap(buf, 'n', config.key_close, ':CloseGitGraph<CR>', { noremap = true, silent = true })
+  else
+    error('Invalid key_close in configuration: Expected a non-empty string')
+  end
+
+  -- Call the draw function from the plugin
+  require('gitgraph.draw').draw(config, { all = true }, { max_count = 100 })
+end
+
+--- Closes the GitGraph window or buffer
+function M.closeGitGraph()
+  if gitgraph_window_id and vim.api.nvim_win_is_valid(gitgraph_window_id) then
+    vim.api.nvim_win_close(gitgraph_window_id, true)
+    gitgraph_window_id = nil
+  else
+    print('GitGraph is not open')
+  end
+end
+
 return M
