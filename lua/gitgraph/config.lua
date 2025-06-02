@@ -46,6 +46,7 @@ local M = {}
 
 ---@type I.GGConfig
 M.defaults = {
+  git_cmd = "git",
   symbols = {
     merge_commit = 'M',
     commit = '*',

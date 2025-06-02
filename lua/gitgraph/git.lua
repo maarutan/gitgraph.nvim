@@ -1,4 +1,5 @@
 local log = require('gitgraph.log')
+local config = require('gitgraph').config
 
 local M = {}
 
@@ -22,7 +23,7 @@ function M.git_log_pretty(args, date_format)
     args.revision_range = nil
   end
 
-  local cli = [[git log %s %s --pretty="%s" --date="%s" %s %s --date-order]]
+  local cli = config.git_cmd .. [[ log %s %s --pretty="%s" --date="%s" %s %s --date-order]]
 
   local cli_args = {
     args.revision_range or '', -- revision range
