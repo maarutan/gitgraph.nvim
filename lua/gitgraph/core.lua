@@ -9,6 +9,10 @@ local ui = require('gitgraph.ui')
 ---@field mode? 'debug' | 'test'
 ---@field pretty? boolean
 
+---@class I.DrawOptions
+---@field mode? 'debug' | 'test'
+---@field pretty? boolean
+
 ---@class I.Highlight
 ---@field hg string -- NOTE: fine to use string since lua internalizes strings
 ---@field row integer
