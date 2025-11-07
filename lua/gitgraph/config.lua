@@ -26,6 +26,13 @@ local log = require('gitgraph.log')
 ---@field GLRUCL string
 ---@field GLRUCR string
 
+---@class I.Window
+---@field layout string
+---@field width number
+---@field height number
+---@field close string
+---@field border string
+
 ---@alias I.GGVarName "hash" | "timestamp" | "author" | "branch_name" | "tag" | "message"
 
 ---@class I.GGFormat
@@ -46,15 +53,19 @@ local M = {}
 
 ---@type I.GGConfig
 M.defaults = {
-  layout = 'floating', -- Options: "floating", "vertical", "horizontal"
-  floating_width = 80, -- Width for floating window (percentage of the screen)
-  floating_height = 80, -- Height for floating window (percentage of the screen)
-  border = 'single', -- Options: "single", "double", "rounded", "solid", "shadow"
-  toggle_keymap = '<leader>gi', -- Default keymap for toggling GitGraph
-  key_close = 'q', -- Keymap to close GitGraph buffer
+  git_cmd = 'git',
+
+  window = {
+    layout = 'float', -- float || split || vsplit || full
+    -- if layout is float
+    width = 0.8, -- screen share or number of columns
+    height = 0.8, -- screen share or number of lines
+
+    close = 'q', -- if current buffer is gitgraph, close it
+    border = 'rounded', -- single || double || rounded || none
+  },
 
   symbols = {
-
     merge_commit = 'M',
     commit = '*',
     merge_commit_end = 'M',
@@ -96,7 +107,5 @@ M.defaults = {
   },
   log_level = vim.log.levels.ERROR,
 }
-function M.setup(user_config)
-  M.defaults = vim.tbl_deep_extend('force', M.defaults, user_config or {})
-end
+
 return M
